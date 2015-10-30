@@ -15,4 +15,5 @@ public class Constant {
 	
 	public static final String RELATIONSHIP_TYPE_KEYWORD = "Keyword";
 	public static final String RELATIONSHIP_TYPE_AUTHORSHIP = "Authorship";
+	public static final String RELATIONSHIP_TYPE_TASK = "Task";
 }

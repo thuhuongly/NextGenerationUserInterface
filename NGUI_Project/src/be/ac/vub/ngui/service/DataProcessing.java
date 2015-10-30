@@ -6,9 +6,11 @@ package be.ac.vub.ngui.service;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
-
-import org.json.JSONArray;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.google.gson.Gson;
 
@@ -33,11 +35,29 @@ public class DataProcessing {
 			// add emails
 			documents.addAll(GmailService.listEmails());
 			
-			// add tasks
-			documents.addAll(TaskService.listTasks());
-			
 			// add notes
 			documents.addAll(NoteService.listNotes());
+			
+			// add tasks
+			for (Document doc : documents) {
+				List<String> taskList = new ArrayList<String>();
+				
+				Map<String, String> tasks = TaskService.listTasks();
+				Iterator<Entry<String, String>> it = tasks.entrySet().iterator();
+				
+				while (it.hasNext()) {
+					Entry<String, String> entry = (Entry<String, String>) it.next();
+					String taskTitle = entry.getKey();
+					String notes = entry.getValue();
+					if (notes != null) {
+						List<String> desc = Arrays.asList(notes.split(";"));
+						if (desc.contains(doc.getTitle())) {
+							taskList.add(taskTitle);
+						}
+					}
+				}
+				doc.setTasks(taskList);
+			}
 			
 			// add link
 			for (int i = 0; i < documents.size(); i++) {
@@ -68,6 +88,16 @@ public class DataProcessing {
 						links.add(link);
 					}
 					
+					// check task relationship
+					if (shareTasks(source, target)) {
+						Link link = new Link();
+						link.setSource(i);
+						link.setTarget(j);
+						values.add(Constant.RELATIONSHIP_TYPE_TASK);
+						link.setValues(values);
+						
+						links.add(link);
+					}
 				}
 			}
 			
@@ -120,6 +150,27 @@ public class DataProcessing {
 		if (authorSource != null) {
 			for (String author : authorSource) {
 				if (authorTarget != null && author != null && authorTarget.contains(author)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Check if two documents share some authors
+	 * @param source
+	 * @param target
+	 * @return
+	 */
+	private static boolean shareTasks(Document source, Document target) {
+
+		List<String> taskSource = source.getTasks();
+		List<String> taskTarget = target.getTasks();
+
+		if (taskSource.size() > 0) {
+			for (String task : taskSource) {
+				if (taskTarget.size() > 0 && taskTarget.contains(task)) {
 					return true;
 				}
 			}

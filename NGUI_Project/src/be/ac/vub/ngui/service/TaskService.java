@@ -6,10 +6,10 @@ package be.ac.vub.ngui.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -24,9 +24,6 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.TasksScopes;
 import com.google.api.services.tasks.model.Task;
-
-import be.ac.vub.ngui.model.Document;
-import be.ac.vub.ngui.utils.Constant;
 
 /**
  * @author thuhuongly
@@ -68,7 +65,7 @@ public class TaskService {
 	 * 
 	 * @throws IOException
 	 */
-	public static List<Document> listTasks() throws IOException {
+	public static Map<String,String> listTasks() throws IOException {
 		// Build a new authorized API client service.
 		Tasks service = TaskService.getTasksService();
 
@@ -76,40 +73,19 @@ public class TaskService {
 		com.google.api.services.tasks.model.Tasks result = service.tasks().list("MDYyODMzMzU1MzY5NjQ5NDk3NDY6MDow")
 				.setMaxResults(Long.valueOf(10)).execute();
 		List<Task> tasklists = result.getItems();
-		List<Document> resultString = new ArrayList<Document>();
+		Map<String,String> resultMap = new HashMap<String,String>();
 
 		if (tasklists == null || tasklists.size() == 0) {
 			System.out.println("No task lists found.");
 		} else {
 		//	System.out.println("Task lists:");
 			for (Task task : tasklists) {
-				Document data = new Document();
-				data.setId(task.getId());
-				data.setTitle(task.getTitle());
-
-				data.setDatatype(Constant.DATA_TYPE_TASK);
-
-				List<String> authors = new ArrayList<String>();
-				authors.add(task.getParent());
-				data.setAuthors(authors);
-
 				if (task.getNotes() != null) {
-					data.setKeywords(Arrays.asList(task.getNotes().split(" ")));
-				} else {
-					data.setKeywords(null);
+					resultMap.put(task.getTitle(),task.getNotes());
 				}
-
-				data.setCreatedDate(new Date());
-				data.setTasks(null);
-				data.setContent(task.getNotes());
-
-				/*Gson gson = new Gson();
-				String json = gson.toJson(data);*/
-
-				resultString.add(data);
 			}
 		}
-		return resultString;
+		return resultMap;
 	}
 	
 	/**
