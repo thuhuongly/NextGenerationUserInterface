@@ -8,6 +8,8 @@ package be.ac.vub.ngui.utils;
  *
  */
 public class Constant {
+	public static final String DOCUMENT_KIND_DIGITAL = "Digital";
+	
 	public static final String DATA_TYPE_EMAIL = "Email";
 	public static final String DATA_TYPE_NOTE = "Note";
 	public static final String DATA_TYPE_PUBLICATION = "Publication";

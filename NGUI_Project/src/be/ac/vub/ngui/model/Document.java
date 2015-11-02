@@ -19,7 +19,8 @@ public class Document {
 	private Date createdDate;
 	private List<String> tasks;
 	private String content;
-
+	private String kind;
+	
 	/**
 	 * @return the id
 	 */
@@ -146,6 +147,20 @@ public class Document {
 	public String toString() {
 		return "Data [id=" + id + ", title=" + title + ", datatype=" + datatype + ", authors=" + authors + ", keywords="
 				+ keywords + ", dateCreated=" + createdDate + ", tasks=" + tasks + ", content=" + content + "]";
+	}
+
+	/**
+	 * @return the kind
+	 */
+	public String getKind() {
+		return kind;
+	}
+
+	/**
+	 * @param kind the kind to set
+	 */
+	public void setKind(String kind) {
+		this.kind = kind;
 	}
 
 }

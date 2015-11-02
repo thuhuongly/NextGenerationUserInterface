@@ -40,6 +40,7 @@ public class DataProcessing {
 			
 			// add tasks
 			for (Document doc : documents) {
+				doc.setKind(Constant.DOCUMENT_KIND_DIGITAL);
 				List<String> taskList = new ArrayList<String>();
 				
 				Map<String, String> tasks = TaskService.listTasks();
