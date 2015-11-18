@@ -4,6 +4,7 @@
 package be.ac.vub.ngui.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -184,7 +185,9 @@ public class NoteService {
 				List<String> authors = new ArrayList<String>();
 				authors.add(note.getAttributes().getAuthor());
 				data.setAuthors(authors);
-				data.setKeywords(null);
+				
+				List<String> keywords = Arrays.asList(note.getTitle().split(" "));
+				data.setKeywords(keywords);
 
 				data.setCreatedDate(new Date());
 				data.setTasks(null);
