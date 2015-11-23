@@ -57,7 +57,7 @@ public class MendeleyService {
 			try {
 				tokenResponse = oAuthClient.accessToken(request, OAuthJSONAccessTokenResponse.class);
 
-				HttpGet httpGet = new HttpGet("https://api.mendeley.com/documents");
+				HttpGet httpGet = new HttpGet("https://api.mendeley.com/documents?limit=100");
 				httpGet.setHeader("Authorization", "Bearer " + tokenResponse.getAccessToken());
 				DefaultHttpClient apacheHttpClient = ApacheHttpTransport.newDefaultHttpClient();
 				HttpResponse httpResponse = apacheHttpClient.execute(httpGet);

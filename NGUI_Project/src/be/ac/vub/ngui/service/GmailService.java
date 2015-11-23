@@ -25,6 +25,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
+import com.google.api.services.gmail.model.Label;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePart;
@@ -75,7 +76,8 @@ public class GmailService {
 	public static List<Document> listEmails() throws IOException {
 		// Build a new authorized API client service.
 		Gmail service = GmailService.getGmailService();
-		List<Message> messages = GmailService.listMessages(service, "me");
+		String userId = "me";
+		List<Message> messages = GmailService.listMessages(service, userId);
 
 		List<Document> result = new ArrayList<Document>();
 
@@ -98,7 +100,14 @@ public class GmailService {
 				authors.add(headerMap.get("From"));
 				data.setAuthors(authors);
 
-				data.setKeywords(message.getLabelIds());
+				List<String> keywords = new ArrayList<String>();
+				List<String> labelIds = message.getLabelIds();
+				
+				for (String labelId : labelIds) {
+					keywords.add(getLabel(service, userId, labelId));
+				}
+				
+				data.setKeywords(keywords);
 
 				data.setCreatedDate(new Date());
 				data.setTasks(null);
@@ -203,4 +212,19 @@ public class GmailService {
 	    return message;
 	  }
 
+	  /**
+	   * Get specified Label.
+	   *
+	   * @param service Authorized Gmail API instance.
+	   * @param userId User's email address. The special value "me"
+	   * can be used to indicate the authenticated user.
+	   * @param labelId ID of Label to get.
+	   * @throws IOException
+	   */
+	  public static String getLabel(Gmail service, String userId, String labelId)
+	      throws IOException {
+	    Label label = service.users().labels().get(userId, labelId).execute();
+
+	    return label.getName();
+	  }
 }
