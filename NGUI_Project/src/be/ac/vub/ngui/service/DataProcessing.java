@@ -65,37 +65,39 @@ public class DataProcessing {
 				for (int j = i + 1; j < documents.size(); j++) {
 					Document source = documents.get(i);
 					Document target = documents.get(j);
-					List<String> values = new ArrayList<String>();
 					
 					// check keyword relationship
-					if (shareKeywords(source, target)) {
+					List<String> shareKeyWord = shareKeywords(source, target);
+					if (shareKeyWord.size() > 0) {
 						Link link = new Link();
 						link.setSource(i);
 						link.setTarget(j);
-						values.add(Constant.RELATIONSHIP_TYPE_KEYWORD);
-						link.setValues(values);
+						link.setType(Constant.RELATIONSHIP_TYPE_KEYWORD);
+						link.setValue(shareKeyWord);
 						
 						links.add(link);
 					}
 					
 					// check authorship
-					if (shareAuthors(source, target)) {
+					List<String> shareAuthor = shareAuthors(source, target); 
+					if (shareAuthor.size() > 0) {
 						Link link = new Link();
 						link.setSource(i);
 						link.setTarget(j);
-						values.add(Constant.RELATIONSHIP_TYPE_AUTHORSHIP);
-						link.setValues(values);
+						link.setType(Constant.RELATIONSHIP_TYPE_AUTHORSHIP);
+						link.setValue(shareAuthor);
 						
 						links.add(link);
 					}
 					
 					// check task relationship
-					if (shareTasks(source, target)) {
+					List<String> shareTask = shareTasks(source, target);
+					if (shareTask.size() > 0) {
 						Link link = new Link();
 						link.setSource(i);
 						link.setTarget(j);
-						values.add(Constant.RELATIONSHIP_TYPE_TASK);
-						link.setValues(values);
+						link.setType(Constant.RELATIONSHIP_TYPE_TASK);
+						link.setValue(shareTask);
 						
 						links.add(link);
 					}
@@ -122,19 +124,22 @@ public class DataProcessing {
 	 * @param target
 	 * @return
 	 */
-	private static boolean shareKeywords(Document source, Document target) {
+	private static List<String> shareKeywords(Document source, Document target) {
 
+		List<String> linkdata = new ArrayList<String>();
 		List<String> keywordSource = source.getKeywords();
 		List<String> keywordTarget = target.getKeywords();
 		
 		if (keywordSource != null) {
 			for (String keyword : keywordSource) {
 				if(keywordTarget != null && keyword != null && keywordTarget.contains(keyword)) {
-					return true;
+					if (!keyword.contains("INBOX")) {
+						linkdata.add(keyword);
+					}
 				}
 			}
 		}
-		return false;
+		return linkdata;
 	}
 	
 	/**
@@ -143,19 +148,20 @@ public class DataProcessing {
 	 * @param target
 	 * @return
 	 */
-	private static boolean shareAuthors(Document source, Document target) {
+	private static List<String> shareAuthors(Document source, Document target) {
 
+		List<String> linkdata = new ArrayList<String>();
 		List<String> authorSource = source.getAuthors();
 		List<String> authorTarget = target.getAuthors();
 
 		if (authorSource != null) {
 			for (String author : authorSource) {
 				if (authorTarget != null && author != null && authorTarget.contains(author)) {
-					return true;
+					linkdata.add(author);
 				}
 			}
 		}
-		return false;
+		return linkdata;
 	}
 	
 	/**
@@ -164,18 +170,19 @@ public class DataProcessing {
 	 * @param target
 	 * @return
 	 */
-	private static boolean shareTasks(Document source, Document target) {
+	private static List<String> shareTasks(Document source, Document target) {
 
+		List<String> linkdata = new ArrayList<String>();
 		List<String> taskSource = source.getTasks();
 		List<String> taskTarget = target.getTasks();
 
 		if (taskSource.size() > 0) {
 			for (String task : taskSource) {
 				if (taskTarget.size() > 0 && taskTarget.contains(task)) {
-					return true;
+					linkdata.add(task);
 				}
 			}
 		}
-		return false;
+		return linkdata;
 	}
 }

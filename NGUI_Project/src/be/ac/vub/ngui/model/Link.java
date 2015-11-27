@@ -12,8 +12,9 @@ import java.util.List;
 public class Link {
 	private int source;
 	private int target;
-	private List<String> values;
-
+	private String type;
+	private List<String> value;
+	
 	/**
 	 * @return the source
 	 */
@@ -45,19 +46,30 @@ public class Link {
 	}
 
 	/**
-	 * @return the values
+	 * @return the type
 	 */
-	public List<String> getValues() {
-		return values;
+	public String getType() {
+		return type;
 	}
 
 	/**
-	 * @param values the values to set
+	 * @param type the type to set
 	 */
-	public void setValues(List<String> values) {
-		this.values = values;
+	public void setType(String type) {
+		this.type = type;
 	}
 
-	
+	/**
+	 * @return the value
+	 */
+	public List<String> getValue() {
+		return value;
+	}
 
+	/**
+	 * @param value the value to set
+	 */
+	public void setValue(List<String> value) {
+		this.value = value;
+	}
 }
