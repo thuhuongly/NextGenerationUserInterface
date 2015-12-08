@@ -3,10 +3,22 @@
  */
 package be.ac.vub.ngui.service;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.evernote.auth.EvernoteAuth;
 import com.evernote.auth.EvernoteService;
@@ -22,7 +34,6 @@ import com.evernote.edam.type.Note;
 import com.evernote.edam.type.NoteSortOrder;
 import com.evernote.edam.type.Notebook;
 import com.evernote.thrift.transport.TTransportException;
-import com.google.gson.Gson;
 
 import be.ac.vub.ngui.model.Document;
 import be.ac.vub.ngui.utils.Constant;
@@ -174,31 +185,47 @@ public class NoteService {
 
 			NoteList noteList = noteStore.findNotes(filter, 0, 100);
 			List<Note> notes = noteList.getNotes();
-			for(int i = 0;  i < notes.size(); i++) {
-				Note note = notes.get(i);
+			for(Note note : notes) {
+				Note fullnote = noteStore.getNote(note.getGuid(), true, true, false, false);
 				Document data = new Document();
-				data.setId(note.getGuid());
-				data.setTitle(note.getTitle());
+				data.setId(fullnote.getGuid());
+				data.setTitle(fullnote.getTitle());
 
 				data.setDatatype(Constant.DATA_TYPE_NOTE);
 
 				List<String> authors = new ArrayList<String>();
-				authors.add(note.getAttributes().getAuthor());
+				authors.add(fullnote.getAttributes().getAuthor());
 				data.setAuthors(authors);
 				
-				List<String> keywords = Arrays.asList(note.getTitle().split(" "));
+				List<String> keywords = Arrays.asList(fullnote.getTitle().split(" "));
 				data.setKeywords(keywords);
 
 				data.setCreatedDate(new Date());
 				data.setTasks(null);
-				data.setContent(note.getContentHash().toString());
-
+				
+				String content = getXmlValue(fullnote.getContent(), "/en-note");
+				data.setContent(content);
+				
 				/*Gson gson = new Gson();
 				String json = gson.toJson(data);*/
 				result.add(data);
 			}
 		}
+		
 		return result;
 	}
 
+	public static String getXmlValue(String xml, String tagName) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException{
+		InputSource source = new InputSource(new StringReader(xml));
+
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		org.w3c.dom.Document document = db.parse(source);
+
+		XPathFactory xpathFactory = XPathFactory.newInstance();
+		XPath xpath = xpathFactory.newXPath();
+
+		String result = xpath.evaluate(tagName, document);
+		return result;
+	}
 }
