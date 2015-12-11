@@ -14,6 +14,7 @@ public class Publication {
 	private String title;
 	private List<Name> authors;
 	private List<String> keywords;
+	private List<String> tags;
 	private String abstracts;
 
 	public class Name {
@@ -135,6 +136,20 @@ public class Publication {
 	@Override
 	public String toString() {
 		return "Publication [id=" + id + ", title=" + title + ", authors=" + authors
-				+ ", keywords=" + keywords + ", abstracts=" + abstracts + "]";
+				+ ", keywords=" + keywords + ", tags=" + tags + ", abstracts=" + abstracts + "]";
+	}
+
+	/**
+	 * @return the tags
+	 */
+	public List<String> getTags() {
+		return tags;
+	}
+
+	/**
+	 * @param tags the tags to set
+	 */
+	public void setTags(List<String> tags) {
+		this.tags = tags;
 	}
 }

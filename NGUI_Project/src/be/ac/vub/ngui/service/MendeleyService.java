@@ -57,7 +57,7 @@ public class MendeleyService {
 			try {
 				tokenResponse = oAuthClient.accessToken(request, OAuthJSONAccessTokenResponse.class);
 
-				HttpGet httpGet = new HttpGet("https://api.mendeley.com/documents?limit=100");
+				HttpGet httpGet = new HttpGet("https://api.mendeley.com/documents?limit=100&view=all");
 				httpGet.setHeader("Authorization", "Bearer " + tokenResponse.getAccessToken());
 				DefaultHttpClient apacheHttpClient = ApacheHttpTransport.newDefaultHttpClient();
 				HttpResponse httpResponse = apacheHttpClient.execute(httpGet);
@@ -69,7 +69,7 @@ public class MendeleyService {
 
 				for (int i = 0; i < array.length(); i++) {
 					Publication publication = gson.fromJson(array.getJSONObject(i).toString(), Publication.class);
-
+					
 					Document data = new Document();
 					data.setId(publication.getId());
 					data.setTitle(publication.getTitle());
@@ -85,12 +85,12 @@ public class MendeleyService {
 					data.setAuthors(authors);
 					data.setKeywords(publication.getKeywords());
 					data.setCreatedDate(new Date());
-					data.setTasks(null);
+					data.setTasks(publication.getTags());
 					data.setContent(publication.getAbstracts());
 
 					/*Gson gson1 = new Gson();
 					String json = gson1.toJson(data);*/
-
+					
 					result.add(data);
 				}
 
@@ -124,15 +124,43 @@ public class MendeleyService {
 			OAuthJSONAccessTokenResponse tokenResponse;
 			try {
 				tokenResponse = oAuthClient.accessToken(request, OAuthJSONAccessTokenResponse.class);
-
-				HttpGet httpGet = new HttpGet("https://api.mendeley.com/documents");
+				Gson gson = new Gson();
+				HttpGet httpGet = new HttpGet("https://api.mendeley.com/documents?view=all");
 				httpGet.setHeader("Authorization", "Bearer " + tokenResponse.getAccessToken());
 				DefaultHttpClient apacheHttpClient = ApacheHttpTransport.newDefaultHttpClient();
 				HttpResponse httpResponse = apacheHttpClient.execute(httpGet);
 
 				String responseAsString = EntityUtils.toString(httpResponse.getEntity());
+				String newResponse = responseAsString.replace("abstract", "abstracts");
 
-				System.out.println(responseAsString);
+				JSONArray array = new JSONArray(newResponse);
+
+				for (int i = 0; i < array.length(); i++) {
+					Publication publication = gson.fromJson(array.getJSONObject(i).toString(), Publication.class);
+					
+					Document data = new Document();
+					data.setId(publication.getId());
+					data.setTitle(publication.getTitle());
+
+					data.setDatatype(Constant.DATA_TYPE_PUBLICATION);
+
+					List<String> authors = new ArrayList<String>();
+					List<Name> authorName = publication.getAuthors();
+					for (Object object : authorName) {
+						authors.add(object.toString());
+					}
+					
+					data.setAuthors(authors);
+					data.setKeywords(publication.getKeywords());
+					data.setCreatedDate(new Date());
+					data.setTasks(publication.getTags());
+					data.setContent(publication.getAbstracts());
+					
+
+					System.out.println(data);
+				}
+
+				//System.out.println(responseAsString);
 			} catch (OAuthProblemException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

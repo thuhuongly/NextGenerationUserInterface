@@ -57,7 +57,9 @@ public class DataProcessing {
 						}
 					}
 				}
-				doc.setTasks(taskList);
+				if (doc.getTasks() == null) {
+					doc.setTasks(taskList);
+				}
 			}
 			
 			// add link
